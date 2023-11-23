@@ -4,10 +4,17 @@
 #include <ctime>
 #include <cstdlib>
 #include <limits>
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <chrono>
+#include <Windows.h>
 
 using namespace std;
 
 const int INF = numeric_limits<int>::max();
+int global_liczba_miast;
+
 
 // Number of cities
 const int numCities = 10;
@@ -51,24 +58,60 @@ int costMatrix20[20][20] = {
 
 };
 
+vector<vector<int>> wczytaj_macierz(const string& daneWejsciowe, int &liczba_miast) {
+
+    ifstream plikWejsciowy;  // na odczyt pliku
+
+    plikWejsciowy.open(daneWejsciowe);    // otwieram plik
+    if (plikWejsciowy.is_open()) {          // sprawdzam czy plik poprawnie otwarty
+        cout << "Otwarto plik " << daneWejsciowe << endl;
+    } else {
+        cout << "Nie udało się otworzyć pliku wejściowego" << endl;
+        exit(-1);
+    }
+
+    plikWejsciowy >> liczba_miast; // wczytanie liczby miast
+
+    vector<vector<int> > macierz(liczba_miast, vector<int>(liczba_miast));   // macierz na przechowanie danych z pliku
+
+    for (int i = 0; i < liczba_miast; ++i) {    // wpisywanie do macierzy
+        for (int j = 0; j < liczba_miast; ++j) {
+            plikWejsciowy >> macierz[i][j];
+        }
+    }
+    plikWejsciowy.close();   // zamykam plik
+
+    return macierz;     // zwracam gotowa macierz
+}
+
+
+
+
+
+
+
+
+
+
+
 // Tabu Search parameters
 const int maxIterations = 1000;
 const int tabuListSize = 5;
 
 // Function to calculate the total cost of a solution
-int calculateCost(const vector<int>& solution) {
+int calculateCost(const vector<int>& solution, vector<vector<int>> macierz) {
     int totalCost = 0;
-    for (int i = 0; i < numCities - 1; ++i) {
-        totalCost += costMatrix[solution[i]][solution[i + 1]];
+    for (int i = 0; i < global_liczba_miast - 1; ++i) {
+        totalCost += macierz[solution[i]][solution[i + 1]];
     }
-    totalCost += costMatrix[solution[numCities - 1]][solution[0]]; // Return to the starting city
+    totalCost += macierz[solution[global_liczba_miast - 1]][solution[0]]; // Return to the starting city
     return totalCost;
 }
 
 // Function to generate a random initial solution
 vector<int> generateRandomSolution() {
-    vector<int> solution(numCities);
-    for (int i = 0; i < numCities; ++i) {
+    vector<int> solution(global_liczba_miast);
+    for (int i = 0; i < global_liczba_miast; ++i) {
         solution[i] = i;
     }
     random_shuffle(solution.begin() + 1, solution.end()); // Shuffle, excluding the starting city
@@ -76,22 +119,22 @@ vector<int> generateRandomSolution() {
 }
 
 // Function to perform the Tabu Search
-vector<int> tabuSearch() {
+vector<int> tabuSearch(vector<vector<int>> macierz) {
     vector<int> currentSolution = generateRandomSolution();
     vector<int> bestSolution = currentSolution;
-    int currentCost = calculateCost(currentSolution);
+    int currentCost = calculateCost(currentSolution, macierz);
     int bestCost = currentCost;
 
     vector<vector<int>> tabuList;
 
     for (int iteration = 0; iteration < maxIterations; ++iteration) {
-        for (int i = 1; i < numCities - 1; ++i) {
-            for (int j = i + 1; j < numCities; ++j) {
+        for (int i = 1; i < global_liczba_miast - 1; ++i) {
+            for (int j = i + 1; j < global_liczba_miast; ++j) {
                 // Swap cities i and j in the solution
                 swap(currentSolution[i], currentSolution[j]);
 
                 // Calculate the cost of the new solution
-                int newCost = calculateCost(currentSolution);
+                int newCost = calculateCost(currentSolution, macierz);
 
                 // Check if the move is allowed based on tabu list and aspiration criteria
                 if ((newCost < currentCost || iteration == 0) && find(tabuList.begin(), tabuList.end(), currentSolution) == tabuList.end()) {
@@ -119,24 +162,68 @@ vector<int> tabuSearch() {
     return bestSolution;
 }
 
-int main() {
-    srand(time(0)); // Seed for randomization
 
-    for (int i = 0; i < 100; ++i) {
-        vector<int> optimalRoute = tabuSearch();
+void TABU1(){
+    cout << "[TABU1] Podaj nazwe pliku do wczytania: ";   // w pliku i tak jest liczba miast,
+    cout << endl;
+
+    string nazwa_pliku;
+    cin>>nazwa_pliku;
+
+    vector<vector<int> > macierz = wczytaj_macierz(nazwa_pliku, global_liczba_miast);
+
+
+
+    for (int i = 0; i < 10; i++) {
+        vector<int> optimalRoute = tabuSearch(macierz);
         cout << "Optimal Route: ";
         for (int city : optimalRoute) {
             cout << city << " ";
         }
         cout << optimalRoute[0] << endl; // Return to the starting city
-        cout << "Optimal Cost: " << calculateCost(optimalRoute) << endl;
+        cout << "Optimal Cost: " << calculateCost(optimalRoute, macierz) << endl;
     }
+    cout<<"koniec";
 
+    auto start = chrono::high_resolution_clock::now(); // start pomiaru czasu
 
+    auto koniec = chrono::high_resolution_clock::now(); // koniec pomiaru czasu
+    auto czas_wykonania = chrono::duration_cast<chrono::microseconds>(koniec - start);
+    cout << "Czas wykonania: " << czas_wykonania.count() << " mikrosekund" << endl;
+    cout << "Czas wykonania: " << czas_wykonania.count() / 1000 << " milisekund" << endl;
+}
 
-    // Output the optimal route and its cost
+int main() {
+    srand(time(0)); // Seed for randomization
 
+    SetConsoleOutputCP(CP_UTF8); // Konsola ustawiona na utf-8 aby były Polskie litery
 
+    int opcja;
 
-    return 0;
+    while(true){
+        cout<<"Autor: Szymon Borzdyński"<<endl;
+        cout << "Opcje:" << endl;
+        cout << "0 - Wyjście" << endl;
+        cout << "1 - TABU1" << endl;
+        cin>>opcja;
+
+        switch (opcja) {
+            default:
+                system("CLS");
+                cout << "Błędna opcja" << endl << endl;
+                cin>>opcja;
+                break;
+            case 1:
+                TABU1();
+                break;
+            case 2:
+                //aaaa
+                break;
+            case 3:
+                //test_BB();
+                break;
+            case 0:
+                return 0;
+        }
+    }
 }

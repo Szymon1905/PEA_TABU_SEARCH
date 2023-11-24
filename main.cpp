@@ -154,10 +154,32 @@ void generuj_zachlannie_rozwionzanie(vector<vector<int>> macierz, vector<int> &n
 }
 
 // Function to perform the Tabu Search
-vector<int> tabuSearch(vector<vector<int>> macierz) {
-    vector<int> currentSolution = generateRandomSolution();
+vector<int> tabuSearch(const vector<vector<int>> macierz) {
+    ////////////////////////////////////////////////////////////
+
+    vector<int> rozwionzanie;
+    rozwionzanie.push_back(0);
+    vector<int> nieodwiedzone;
+    for (int i = 1; i < global_liczba_miast; i++) {
+        nieodwiedzone.push_back(i);
+    }
+
+    int dlugosc_drogi = 0;
+    generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, rozwionzanie, 0, dlugosc_drogi);
+    rozwionzanie.push_back(0);
+
+    cout<<"Dlugosc drogi zchłannie: "<<dlugosc_drogi<<endl;
+    for (int miasto: rozwionzanie){
+        cout<<miasto<<" ";
+    }
+    cout<<endl;
+    cout<<endl;
+
+
+    ///////////////////////////////////////////////////////////
+    vector<int> currentSolution = rozwionzanie;
     vector<int> bestSolution = currentSolution;
-    int currentCost = calculateCost(currentSolution, macierz);
+    int currentCost = dlugosc_drogi;
     int bestCost = currentCost;
 
     vector<vector<int>> tabuList;
@@ -207,19 +229,6 @@ void TABU1(){
 
     vector<vector<int> > macierz = wczytaj_macierz(nazwa_pliku, global_liczba_miast);
 
-
-
-    for (int i = 0; i < 10; i++) {
-        vector<int> optimalRoute = tabuSearch(macierz);
-        cout << "Optimal Route: ";
-        for (int city : optimalRoute) {
-            cout << city << " ";
-        }
-        cout << optimalRoute[0] << endl; // Return to the starting city
-        cout << "Optimal Cost: " << calculateCost(optimalRoute, macierz) << endl;
-    }
-    cout<<"koniec testu";
-
     auto start = chrono::high_resolution_clock::now(); // start pomiaru czasu
 
     vector<int> optimalRoute = tabuSearch(macierz);
@@ -229,6 +238,7 @@ void TABU1(){
     }
     cout << optimalRoute[0] << endl; // Return to the starting city
     cout << "Optimal Cost: " << calculateCost(optimalRoute, macierz) << endl;
+
 
     auto koniec = chrono::high_resolution_clock::now(); // koniec pomiaru czasu
 

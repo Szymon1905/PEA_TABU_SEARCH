@@ -96,27 +96,18 @@ vector<vector<int>> wczytaj_macierz(const string& daneWejsciowe, int &liczba_mia
 
 // Tabu Search parameters
 const int maxIterations = 1000;
-const int tabuListSize = 5;
+const int tabuListSize = 10;
 
-// Function to calculate the total cost of a solution
-int calculateCost(const vector<int>& solution, vector<vector<int>> macierz) {
-    int totalCost = 0;
+// Function to calculate the total cost of a rozwionzanie
+int oblicz_koszt_drogi(const vector<int>& rozwionzanie, vector<vector<int>> macierz) {
+    int suma = 0;
     for (int i = 0; i < global_liczba_miast - 1; ++i) {
-        totalCost += macierz[solution[i]][solution[i + 1]];
+        suma += macierz[rozwionzanie[i]][rozwionzanie[i + 1]];
     }
-    totalCost += macierz[solution[global_liczba_miast - 1]][solution[0]]; // Return to the starting city
-    return totalCost;
+    suma += macierz[rozwionzanie[global_liczba_miast - 1]][rozwionzanie[0]]; // dodatkowy koszt powrotu do startu
+    return suma;
 }
 
-// Function to generate a random initial solution
-vector<int> generateRandomSolution() {
-    vector<int> solution(global_liczba_miast);
-    for (int i = 0; i < global_liczba_miast; ++i) {
-        solution[i] = i;
-    }
-    random_shuffle(solution.begin() + 1, solution.end()); // Shuffle, excluding the starting city
-    return solution;
-}
 
 void generuj_zachlannie_rozwionzanie(vector<vector<int>> macierz, vector<int> &nieodwiedzone, vector<int> &rozwionzanie, int miasto_badane, int &dlugosc_drogi ) {
     int najmniejsza=INF;
@@ -126,8 +117,6 @@ void generuj_zachlannie_rozwionzanie(vector<vector<int>> macierz, vector<int> &n
         dlugosc_drogi = dlugosc_drogi + macierz[miasto_badane][0];
         return;
     }
-
-
 
     for (int miasto : nieodwiedzone){
 
@@ -168,7 +157,7 @@ vector<int> tabuSearch(const vector<vector<int>> macierz) {
     generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, rozwionzanie, 0, dlugosc_drogi);
     rozwionzanie.push_back(0);
 
-    cout<<"Dlugosc drogi zchłannie: "<<dlugosc_drogi<<endl;
+    cout<<"Dlugość drogi zachłannie: "<<dlugosc_drogi<<endl;
     for (int miasto: rozwionzanie){
         cout<<miasto<<" ";
     }
@@ -177,8 +166,8 @@ vector<int> tabuSearch(const vector<vector<int>> macierz) {
 
 
     ///////////////////////////////////////////////////////////
-    vector<int> currentSolution = rozwionzanie;
-    vector<int> bestSolution = currentSolution;
+    vector<int> obecnie_najlepsze_rozwionzanie = rozwionzanie;
+    vector<int> bestSolution = obecnie_najlepsze_rozwionzanie;
     int currentCost = dlugosc_drogi;
     int bestCost = currentCost;
 
@@ -187,30 +176,31 @@ vector<int> tabuSearch(const vector<vector<int>> macierz) {
     for (int iteration = 0; iteration < maxIterations; ++iteration) {
         for (int i = 1; i < global_liczba_miast - 1; ++i) {
             for (int j = i + 1; j < global_liczba_miast; ++j) {
-                // Swap cities i and j in the solution
-                swap(currentSolution[i], currentSolution[j]);
+                // // zamieniam miasta i oraz j w rozwiązaniu
+                swap(obecnie_najlepsze_rozwionzanie[i], obecnie_najlepsze_rozwionzanie[j]);
 
-                // Calculate the cost of the new solution
-                int newCost = calculateCost(currentSolution, macierz);
+                // Obliczam koszt nowego rozwiązania
+                int newCost = oblicz_koszt_drogi(obecnie_najlepsze_rozwionzanie, macierz);
 
-                // Check if the move is allowed based on tabu list and aspiration criteria
-                if ((newCost < currentCost || iteration == 0) && find(tabuList.begin(), tabuList.end(), currentSolution) == tabuList.end()) {
+
+                // sprawdzam czy ruch jest wykonalny wobec listy tabu
+                if ((newCost < currentCost || iteration == 0) && find(tabuList.begin(), tabuList.end(), obecnie_najlepsze_rozwionzanie) == tabuList.end()) {
                     currentCost = newCost;
 
-                    // Update the best solution if a better one is found
+                    // aktualzuje najlepsze rozwiązanie jeśli je znajdę
                     if (currentCost < bestCost) {
-                        bestSolution = currentSolution;
+                        bestSolution = obecnie_najlepsze_rozwionzanie;
                         bestCost = currentCost;
                     }
 
-                    // Add the current solution to the tabu list
-                    tabuList.push_back(currentSolution);
+                    // dodaje obecne rozwiązanie do listy tabu
+                    tabuList.push_back(obecnie_najlepsze_rozwionzanie);
                     if (tabuList.size() > tabuListSize) {
                         tabuList.erase(tabuList.begin());
                     }
                 } else {
-                    // Revert the swap if the move is not allowed
-                    swap(currentSolution[i], currentSolution[j]);
+                    // cofam zaminaę miast jeśi nie moge tego zrobić
+                    swap(obecnie_najlepsze_rozwionzanie[i], obecnie_najlepsze_rozwionzanie[j]);
                 }
             }
         }
@@ -237,7 +227,7 @@ void TABU1(){
         cout << city << " ";
     }
     cout << optimalRoute[0] << endl; // Return to the starting city
-    cout << "Optimal Cost: " << calculateCost(optimalRoute, macierz) << endl;
+    cout << "Optimal Cost: " << oblicz_koszt_drogi(optimalRoute, macierz) << endl;
 
 
     auto koniec = chrono::high_resolution_clock::now(); // koniec pomiaru czasu
@@ -248,7 +238,7 @@ void TABU1(){
 }
 
 int main() {
-    srand(time(0)); // Seed for randomization
+    srand(time(nullptr)); // Seed for randomization
 
     SetConsoleOutputCP(CP_UTF8); // Konsola ustawiona na utf-8 aby były Polskie litery
 

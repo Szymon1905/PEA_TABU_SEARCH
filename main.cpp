@@ -174,10 +174,15 @@ vector<int> tabuSearch(const vector<vector<int>> macierz) {
     vector<vector<int>> tabuList;
 
     for (int iteration = 0; iteration < maxIterations; ++iteration) {
-        for (int i = 1; i < global_liczba_miast - 1; ++i) {
+        for (int i = 1; i < global_liczba_miast; ++i) {
             for (int j = i + 1; j < global_liczba_miast; ++j) {
+
+
+                int randomCity1 = rand() % global_liczba_miast;
+                int randomCity2 = rand() % global_liczba_miast;
+
                 // // zamieniam miasta i oraz j w rozwiązaniu
-                swap(obecnie_najlepsze_rozwionzanie[i], obecnie_najlepsze_rozwionzanie[j]);
+                swap(obecnie_najlepsze_rozwionzanie[randomCity1], obecnie_najlepsze_rozwionzanie[randomCity2]);
 
                 // Obliczam koszt nowego rozwiązania
                 int newCost = oblicz_koszt_drogi(obecnie_najlepsze_rozwionzanie, macierz);
@@ -226,7 +231,7 @@ void TABU1(){
     for (int city : optimalRoute) {
         cout << city << " ";
     }
-    cout << optimalRoute[0] << endl; // Return to the starting city
+    cout<<endl;
     cout << "Optimal Cost: " << oblicz_koszt_drogi(optimalRoute, macierz) << endl;
 
 

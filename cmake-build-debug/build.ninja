@@ -51,7 +51,7 @@ build cmake_object_order_depends_target_PEA_tabu: phony || CMakeFiles/PEA_tabu.d
 
 build CMakeFiles/PEA_tabu.dir/main.cpp.obj: CXX_COMPILER__PEA_tabu_Debug C$:/Users/Dom/CLionProjects/PEA_tabu/main.cpp || cmake_object_order_depends_target_PEA_tabu
   DEP_FILE = CMakeFiles\PEA_tabu.dir\main.cpp.obj.d
-  FLAGS = -O3 -g -fdiagnostics-color=always -std=gnu++23
+  FLAGS = -g -fdiagnostics-color=always -std=gnu++23
   OBJECT_DIR = CMakeFiles\PEA_tabu.dir
   OBJECT_FILE_DIR = CMakeFiles\PEA_tabu.dir
   TARGET_COMPILE_PDB = CMakeFiles\PEA_tabu.dir\
@@ -66,7 +66,7 @@ build CMakeFiles/PEA_tabu.dir/main.cpp.obj: CXX_COMPILER__PEA_tabu_Debug C$:/Use
 # Link the executable PEA_tabu.exe
 
 build PEA_tabu.exe: CXX_EXECUTABLE_LINKER__PEA_tabu_Debug CMakeFiles/PEA_tabu.dir/main.cpp.obj
-  FLAGS = -O3 -g
+  FLAGS = -g
   LINK_FLAGS = -static
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\PEA_tabu.dir

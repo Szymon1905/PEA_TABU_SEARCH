@@ -118,6 +118,41 @@ vector<int> generateRandomSolution() {
     return solution;
 }
 
+void generuj_zachlannie_rozwionzanie(vector<vector<int>> macierz, vector<int> &nieodwiedzone, vector<int> &rozwionzanie, int miasto_badane, int &dlugosc_drogi ) {
+    int najmniejsza=INF;
+    int wybrane_miasto = -1;  // kolejne miasto do którego ide
+
+    if (nieodwiedzone.empty()){
+        dlugosc_drogi = dlugosc_drogi + macierz[miasto_badane][0];
+        return;
+    }
+
+
+
+    for (int miasto : nieodwiedzone){
+
+        if(miasto_badane == miasto){  // pomijam miasto samo do siebie
+            continue;
+        }
+
+        if (macierz[miasto_badane][miasto] < najmniejsza){   // szukam nowej drogi krótkiej z nieodwiedzonych miast
+            najmniejsza = macierz[miasto_badane][miasto];
+            wybrane_miasto = miasto;
+        }
+    }
+
+    dlugosc_drogi = dlugosc_drogi + najmniejsza;
+
+    // dodaje miasto do rozwiązania
+    rozwionzanie.push_back(wybrane_miasto);
+
+    // usuwam miasto bo jest odwiedzone
+    nieodwiedzone.erase(remove(nieodwiedzone.begin(), nieodwiedzone.end(), wybrane_miasto), nieodwiedzone.end());
+
+    //rekurencja
+    generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, rozwionzanie, wybrane_miasto, dlugosc_drogi);
+}
+
 // Function to perform the Tabu Search
 vector<int> tabuSearch(vector<vector<int>> macierz) {
     vector<int> currentSolution = generateRandomSolution();
@@ -183,11 +218,20 @@ void TABU1(){
         cout << optimalRoute[0] << endl; // Return to the starting city
         cout << "Optimal Cost: " << calculateCost(optimalRoute, macierz) << endl;
     }
-    cout<<"koniec";
+    cout<<"koniec testu";
 
     auto start = chrono::high_resolution_clock::now(); // start pomiaru czasu
 
+    vector<int> optimalRoute = tabuSearch(macierz);
+    cout << "Optimal Route: ";
+    for (int city : optimalRoute) {
+        cout << city << " ";
+    }
+    cout << optimalRoute[0] << endl; // Return to the starting city
+    cout << "Optimal Cost: " << calculateCost(optimalRoute, macierz) << endl;
+
     auto koniec = chrono::high_resolution_clock::now(); // koniec pomiaru czasu
+
     auto czas_wykonania = chrono::duration_cast<chrono::microseconds>(koniec - start);
     cout << "Czas wykonania: " << czas_wykonania.count() << " mikrosekund" << endl;
     cout << "Czas wykonania: " << czas_wykonania.count() / 1000 << " milisekund" << endl;
@@ -211,8 +255,10 @@ int main() {
             default:
                 system("CLS");
                 cout << "Błędna opcja" << endl << endl;
-                cin>>opcja;
+                cin >> opcja;
                 break;
+            case 0:
+                return 0;
             case 1:
                 TABU1();
                 break;
@@ -220,10 +266,28 @@ int main() {
                 //aaaa
                 break;
             case 3:
-                //test_BB();
+                vector<vector<int> > macierz = wczytaj_macierz("test4.txt", global_liczba_miast);
+                vector<int> rozwionzanie;
+                rozwionzanie.push_back(0);
+                vector<int> nieodwiedzone;
+                nieodwiedzone.push_back(1);
+                nieodwiedzone.push_back(2);
+                nieodwiedzone.push_back(3);
+
+                int dlugosc_drogi;
+
+
+
+                generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, rozwionzanie, 0, dlugosc_drogi);
+                rozwionzanie.push_back(0);
+
+                //rozwionzanie.push_back(0);
+                for (int var : rozwionzanie) {
+                    cout<<var<<" ";
+                }
+                cout<<dlugosc_drogi<<endl;
+                cout<<endl;
                 break;
-            case 0:
-                return 0;
         }
     }
 }

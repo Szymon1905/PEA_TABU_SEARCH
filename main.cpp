@@ -95,8 +95,8 @@ vector<vector<int>> wczytaj_macierz(const string& daneWejsciowe, int &liczba_mia
 
 
 // Tabu Search parameters
-const int maxIterations = 1000;
-const int tabuListSize = 10;
+const int liczba_iteracji = 100000;
+const int rozmiar_listy_tabu = 1000;
 
 // Function to calculate the total cost of a rozwionzanie
 int oblicz_koszt_drogi(const vector<int>& rozwionzanie, vector<vector<int>> macierz) {
@@ -167,51 +167,44 @@ vector<int> tabuSearch(const vector<vector<int>> macierz) {
 
     ///////////////////////////////////////////////////////////
     vector<int> obecnie_najlepsze_rozwionzanie = rozwionzanie;
-    vector<int> bestSolution = obecnie_najlepsze_rozwionzanie;
-    int currentCost = dlugosc_drogi;
-    int bestCost = currentCost;
+    vector<int> najlepszeRozwionzanie = obecnie_najlepsze_rozwionzanie;
+    int obecny_koszt = dlugosc_drogi;
+    int najlepszy_koszt = obecny_koszt;
 
-    vector<vector<int>> tabuList;
+    vector<vector<int>> lista_tabu;
 
-    for (int iteration = 0; iteration < maxIterations; ++iteration) {
-        for (int i = 1; i < global_liczba_miast; ++i) {
-            for (int j = i + 1; j < global_liczba_miast; ++j) {
+    for (int iteracja = 0; iteracja < liczba_iteracji; iteracja++) {
+        int losowe_miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
+        int losowe_miasto2 = rand() % (global_liczba_miast - 1) + 1;
 
+        // Zamieniam miasta w rozwiązaniu
+        swap(obecnie_najlepsze_rozwionzanie[losowe_miasto1], obecnie_najlepsze_rozwionzanie[losowe_miasto2]);
 
-                int randomCity1 = rand() % global_liczba_miast;
-                int randomCity2 = rand() % global_liczba_miast;
+        // Obliczam koszt nowego rozwiązania
+        int nowy_koszt = oblicz_koszt_drogi(obecnie_najlepsze_rozwionzanie, macierz);
 
-                // // zamieniam miasta i oraz j w rozwiązaniu
-                swap(obecnie_najlepsze_rozwionzanie[randomCity1], obecnie_najlepsze_rozwionzanie[randomCity2]);
+        // Sprawdzam czy ruch jest wykonalny wobec listy tabu
+        if ((nowy_koszt < obecny_koszt || iteracja == 0) && find(lista_tabu.begin(), lista_tabu.end(), obecnie_najlepsze_rozwionzanie) == lista_tabu.end()) {
+            obecny_koszt = nowy_koszt;
 
-                // Obliczam koszt nowego rozwiązania
-                int newCost = oblicz_koszt_drogi(obecnie_najlepsze_rozwionzanie, macierz);
-
-
-                // sprawdzam czy ruch jest wykonalny wobec listy tabu
-                if ((newCost < currentCost || iteration == 0) && find(tabuList.begin(), tabuList.end(), obecnie_najlepsze_rozwionzanie) == tabuList.end()) {
-                    currentCost = newCost;
-
-                    // aktualzuje najlepsze rozwiązanie jeśli je znajdę
-                    if (currentCost < bestCost) {
-                        bestSolution = obecnie_najlepsze_rozwionzanie;
-                        bestCost = currentCost;
-                    }
-
-                    // dodaje obecne rozwiązanie do listy tabu
-                    tabuList.push_back(obecnie_najlepsze_rozwionzanie);
-                    if (tabuList.size() > tabuListSize) {
-                        tabuList.erase(tabuList.begin());
-                    }
-                } else {
-                    // cofam zaminaę miast jeśi nie moge tego zrobić
-                    swap(obecnie_najlepsze_rozwionzanie[i], obecnie_najlepsze_rozwionzanie[j]);
-                }
+            // Aktualizuje najlepsze rozwiązanie jeśli je znajdę
+            if (obecny_koszt < najlepszy_koszt) {
+                najlepszeRozwionzanie = obecnie_najlepsze_rozwionzanie;
+                najlepszy_koszt = obecny_koszt;
             }
+
+            // Dodaje obecne rozwiązanie do listy tabu
+            lista_tabu.push_back(obecnie_najlepsze_rozwionzanie);
+            if (lista_tabu.size() > rozmiar_listy_tabu) {
+                lista_tabu.erase(lista_tabu.begin());
+            }
+        } else {
+            // Cofam zamianę miast jeśli nie mogę tego zrobić
+            swap(obecnie_najlepsze_rozwionzanie[losowe_miasto1], obecnie_najlepsze_rozwionzanie[losowe_miasto2]);
         }
     }
 
-    return bestSolution;
+    return najlepszeRozwionzanie;
 }
 
 
@@ -242,6 +235,23 @@ void TABU1(){
     cout << "Czas wykonania: " << czas_wykonania.count() / 1000 << " milisekund" << endl;
 }
 
+void TABU_test(){
+    string nazwa;
+    cout << "Podaj nazwe pliku: " << endl;
+    cin >> nazwa;
+    vector<vector<int> > macierz = wczytaj_macierz(nazwa, global_liczba_miast);
+    for (int i = 0; i < 20; ++i) {
+        vector<int> optimalRoute = tabuSearch(macierz);
+        cout << "Optimal Route: ";
+        for (int city: optimalRoute) {
+            cout << city << " ";
+        }
+        cout << endl;
+        cout << "Optimal Cost: " << oblicz_koszt_drogi(optimalRoute, macierz) << endl;
+    }
+}
+
+
 int main() {
     srand(time(nullptr)); // Seed for randomization
 
@@ -254,6 +264,7 @@ int main() {
         cout << "Opcje:" << endl;
         cout << "0 - Wyjście" << endl;
         cout << "1 - TABU1" << endl;
+        cout << "2 - TABU_test" << endl;
         cin>>opcja;
 
         switch (opcja) {
@@ -268,31 +279,7 @@ int main() {
                 TABU1();
                 break;
             case 2:
-                //aaaa
-                break;
-            case 3:
-                vector<vector<int> > macierz = wczytaj_macierz("test4.txt", global_liczba_miast);
-                vector<int> rozwionzanie;
-                rozwionzanie.push_back(0);
-                vector<int> nieodwiedzone;
-                nieodwiedzone.push_back(1);
-                nieodwiedzone.push_back(2);
-                nieodwiedzone.push_back(3);
-
-                int dlugosc_drogi;
-
-
-
-                generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, rozwionzanie, 0, dlugosc_drogi);
-                rozwionzanie.push_back(0);
-
-                //rozwionzanie.push_back(0);
-                for (int var : rozwionzanie) {
-                    cout<<var<<" ";
-                }
-                cout<<dlugosc_drogi<<endl;
-                cout<<endl;
-                break;
+                TABU_test();
         }
     }
 }

@@ -234,7 +234,7 @@ void SW_start(){
 
     SW(rozwionzanie, macierz);
 
-
+    cout<<"koniec SW"<<endl;
 }
 
 

@@ -65,7 +65,6 @@ int oblicz_koszt_drogi(const vector<int>& rozwionzanie, vector<vector<int>> maci
     for (int i = 0; i < global_liczba_miast - 1; ++i) {
         suma += macierz[rozwionzanie[i]][rozwionzanie[i + 1]];
     }
-    suma += macierz[rozwionzanie[global_liczba_miast - 1]][rozwionzanie[0]]; // dodatkowy koszt powrotu do startu
     return suma;
 }
 

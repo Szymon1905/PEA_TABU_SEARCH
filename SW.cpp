@@ -6,11 +6,13 @@ using namespace std;
 double temperatura = 100000;
 // koszt tej sciezki razy alfa = tempertura
 
-double alfa = 0.98;
+double alfa = 0.99;
 
 int era;
 
-
+void reset(auto &zmienna, auto wartosc){
+    zmienna = wartosc;
+}
 
 
 int oblicz_koszt_drogi_SW(const vector<int> rozwionzanie, vector<vector<int>> macierz) {
@@ -18,7 +20,6 @@ int oblicz_koszt_drogi_SW(const vector<int> rozwionzanie, vector<vector<int>> ma
     for (int i = 0; i < rozwionzanie.size() - 1; i++) {
         suma += macierz[rozwionzanie[i]][rozwionzanie[i + 1]];
     }
-    //suma += macierz[rozwionzanie[rozwionzanie.size() - 1]][rozwionzanie[0]]; // dodatkowy koszt powrotu do startu
     return suma;
 }
 
@@ -77,7 +78,7 @@ void SW(vector<int> x, vector<vector<int>> macierz){
                 uniform_real_distribution<double> distribution(0.0, 1.0);
                 double r = distribution(gen);
 
-                if (r <= p and false){ // etap 7
+                if (r <= p){ // etap 7
                     koszt_x = koszt_y; // etap 4
                     x = y;
                     break;
@@ -96,4 +97,6 @@ void SW(vector<int> x, vector<vector<int>> macierz){
     cout<<"Najlepsza droga wynosi: "<<koszt_x<<endl;
     cout<<endl;
     cout<<endl;
+
+    reset(temperatura,10000);
 }

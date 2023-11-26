@@ -9,6 +9,7 @@
 #include <fstream>
 #include <chrono>
 #include <Windows.h>
+#include "SW.h"
 
 using namespace std;
 
@@ -212,6 +213,32 @@ void TABU_test(){
 }
 
 
+void SW_start(){
+    string nazwa;
+    cout << "Podaj nazwe pliku: " << endl;
+    cin >> nazwa;
+    vector<vector<int> > macierz = wczytaj_macierz(nazwa, global_liczba_miast);
+
+    vector<int> rozwionzanie;
+    rozwionzanie.push_back(0);
+    vector<int> nieodwiedzone;
+    for (int i = 1; i < global_liczba_miast; i++) {
+        nieodwiedzone.push_back(i);
+    }
+
+    int dlugosc_drogi = 0;
+    generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, rozwionzanie, 0, dlugosc_drogi);
+    rozwionzanie.push_back(0);
+
+    // koniec etapu 1
+
+    SW(rozwionzanie, macierz);
+
+
+}
+
+
+
 int main() {
     srand(time(nullptr)); // Seed for randomization
 
@@ -225,6 +252,7 @@ int main() {
         cout << "0 - Wyjście" << endl;
         cout << "1 - TABU1" << endl;
         cout << "2 - TABU_test" << endl;
+        cout << "3 - SWt" << endl;
         cin>>opcja;
 
         switch (opcja) {
@@ -240,6 +268,8 @@ int main() {
                 break;
             case 2:
                 TABU_test();
+            case 3:
+                SW_start();
         }
     }
 }

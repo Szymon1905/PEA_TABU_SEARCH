@@ -55,6 +55,12 @@ build CMakeFiles/PEA_tabu.dir/main.cpp.obj: CXX_COMPILER__PEA_tabu_Debug C$:/Use
   OBJECT_DIR = CMakeFiles\PEA_tabu.dir
   OBJECT_FILE_DIR = CMakeFiles\PEA_tabu.dir
 
+build CMakeFiles/PEA_tabu.dir/SW.cpp.obj: CXX_COMPILER__PEA_tabu_Debug C$:/Users/Dom/CLionProjects/PEA_tabu/SW.cpp || cmake_object_order_depends_target_PEA_tabu
+  DEP_FILE = CMakeFiles\PEA_tabu.dir\SW.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always -std=gnu++23
+  OBJECT_DIR = CMakeFiles\PEA_tabu.dir
+  OBJECT_FILE_DIR = CMakeFiles\PEA_tabu.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target PEA_tabu
@@ -63,7 +69,7 @@ build CMakeFiles/PEA_tabu.dir/main.cpp.obj: CXX_COMPILER__PEA_tabu_Debug C$:/Use
 #############################################
 # Link the executable PEA_tabu.exe
 
-build PEA_tabu.exe: CXX_EXECUTABLE_LINKER__PEA_tabu_Debug CMakeFiles/PEA_tabu.dir/main.cpp.obj
+build PEA_tabu.exe: CXX_EXECUTABLE_LINKER__PEA_tabu_Debug CMakeFiles/PEA_tabu.dir/main.cpp.obj CMakeFiles/PEA_tabu.dir/SW.cpp.obj
   FLAGS = -g
   LINK_FLAGS = -static
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32

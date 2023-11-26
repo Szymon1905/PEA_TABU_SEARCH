@@ -1,10 +1,4 @@
-NAME: ft53
-TYPE: ATSP
-COMMENT: Asymmetric TSP (Fischetti)
-DIMENSION: 53
-EDGE_WEIGHT_TYPE: EXPLICIT
-EDGE_WEIGHT_FORMAT: FULL_MATRIX 
-EDGE_WEIGHT_SECTION
+53
   9999999     223     210     125     245     363     322     388     290     341     267     281     258     247     302
       325     311     276     392     475     417     324     372     437     610     310     362     333     498     459
       467     352     199     336     305     172     143     273     292     364     262     296     435     423     433

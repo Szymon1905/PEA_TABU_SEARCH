@@ -5,5 +5,5 @@
 using namespace std;
 
 
-void SW(vector<int> &x, vector<vector<int>> macierz);
+void SW(vector<int> x, vector<vector<int>> macierz);
 

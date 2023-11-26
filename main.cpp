@@ -181,12 +181,12 @@ void TABU1(){
     auto start = chrono::high_resolution_clock::now(); // start pomiaru czasu
 
     vector<int> optimalRoute = tabuSearch(macierz);
-    cout << "Optimal Route: ";
+    cout << "Droga: ";
     for (int city : optimalRoute) {
         cout << city << " ";
     }
     cout<<endl;
-    cout << "Optimal Cost: " << oblicz_koszt_drogi(optimalRoute, macierz) << endl;
+    cout << "Koszt: " << oblicz_koszt_drogi(optimalRoute, macierz) << endl;
 
 
     auto koniec = chrono::high_resolution_clock::now(); // koniec pomiaru czasu

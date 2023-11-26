@@ -1,10 +1,4 @@
-NAME: ftv44
-TYPE: ATSP
-COMMENT: Asymmetric TSP (Fischetti)
-DIMENSION: 45
-EDGE_WEIGHT_TYPE: EXPLICIT
-EDGE_WEIGHT_FORMAT: FULL_MATRIX 
-EDGE_WEIGHT_SECTION
+45
    100000000          26          46          74          82          65
          102         100         147         134          75          69
          106         117          42          71         158          89

@@ -16,7 +16,7 @@ using namespace std;
 const int INF = MAXINT;
 int global_liczba_miast;
 
-
+// todo pamietaj najlepsze globalnie
 
 
 vector<vector<int>> wczytaj_macierz(const string& daneWejsciowe, int &liczba_miast) {
@@ -179,20 +179,21 @@ void TABU1(){
 
     auto start = chrono::high_resolution_clock::now(); // start pomiaru czasu
 
-    vector<int> optimalRoute = tabuSearch(macierz);
-    cout << "Droga: ";
-    for (int city : optimalRoute) {
-        cout << city << " ";
-    }
-    cout<<endl;
-    cout << "Koszt: " << oblicz_koszt_drogi(optimalRoute, macierz) << endl;
-
+    vector<int> rozwionzanie = tabuSearch(macierz);
 
     auto koniec = chrono::high_resolution_clock::now(); // koniec pomiaru czasu
+
+    cout << "Droga: ";
+    for (int elem : rozwionzanie) {
+        cout << elem << " ";
+    }
+    cout<<endl;
+    cout << "Koszt: " << oblicz_koszt_drogi(rozwionzanie, macierz) << endl;
 
     auto czas_wykonania = chrono::duration_cast<chrono::microseconds>(koniec - start);
     cout << "Czas wykonania: " << czas_wykonania.count() << " mikrosekund" << endl;
     cout << "Czas wykonania: " << czas_wykonania.count() / 1000 << " milisekund" << endl;
+    cout<<endl;
 }
 
 void TABU_test(){
@@ -201,13 +202,14 @@ void TABU_test(){
     cin >> nazwa;
     vector<vector<int> > macierz = wczytaj_macierz(nazwa, global_liczba_miast);
     for (int i = 0; i < 20; ++i) {
-        vector<int> optimalRoute = tabuSearch(macierz);
-        cout << "Optimal Route: ";
-        for (int city: optimalRoute) {
-            cout << city << " ";
+        vector<int> rozwionzanie = tabuSearch(macierz);
+        cout << "Droga: ";
+        for (int elem: rozwionzanie) {
+            cout << elem << " ";
         }
         cout << endl;
-        cout << "Optimal Cost: " << oblicz_koszt_drogi(optimalRoute, macierz) << endl;
+        cout << "Koszt: " << oblicz_koszt_drogi(rozwionzanie, macierz) << endl;
+        cout<<endl;
     }
 }
 

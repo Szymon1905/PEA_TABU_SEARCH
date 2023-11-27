@@ -3,10 +3,15 @@
 
 using namespace std;
 
-double temperatura = 100000;
+double temperatura = 1000000;
 // koszt tej sciezki razy alfa = tempertura
 
-double alfa = 0.99;
+// todo obliczyć temperturę dynamicznie
+
+double alfa = 0.98;
+
+vector<int> najlepsze;
+int koszt_najlepsze = 9999999;
 
 int era;
 
@@ -30,6 +35,9 @@ void SW(vector<int> x, vector<vector<int>> macierz){
 
     // początek etapu 1
     koszt_x = oblicz_koszt_drogi_SW(x, macierz);
+
+    koszt_najlepsze = koszt_x;
+    najlepsze = x;
 
     cout<<"Zachłanna początkowa droga wynosi: "<<koszt_x<<endl;
     for (int elem : x){
@@ -56,7 +64,7 @@ void SW(vector<int> x, vector<vector<int>> macierz){
 
 
 
-    while (temperatura > 0.000001){
+    while (temperatura > 0.0000000001){
         for (int i = 0; i < era; i++) {
 
             //shuffle(y.begin()+1, y.end()-1, gen); // etap 2
@@ -70,23 +78,31 @@ void SW(vector<int> x, vector<vector<int>> macierz){
             // etap 3
             koszt_y = oblicz_koszt_drogi_SW(y,macierz);
 
-            if (koszt_y <= koszt_x){
+            if (koszt_y <= koszt_x ){
                 koszt_x = koszt_y;   // etap 4
                 x = y;
+                if(koszt_najlepsze > koszt_y){
+                    najlepsze = y;
+                    koszt_najlepsze = koszt_y;
+                }
+
             } else {
-                double p = exp(((-koszt_y - koszt_x) / temperatura ));  // etap 6
+                double p = exp((-(koszt_y - koszt_x) / temperatura ));  // etap 6
                 uniform_real_distribution<double> distribution(0.0, 1.0);
                 double r = distribution(gen);
+                cout<<"prawdo: "<<p<<endl;
 
                 if (r <= p){ // etap 7
                     koszt_x = koszt_y; // etap 4
                     x = y;
-                    break;
+                    //break;
                 }
             }
         }
         temperatura = temperatura * alfa; // etap 5
     }
+
+    // insert losować elemt do ywjęcia i wstawic na losowe miejsce
 
 
 
@@ -99,4 +115,6 @@ void SW(vector<int> x, vector<vector<int>> macierz){
     cout<<endl;
 
     reset(temperatura,10000);
+    reset(koszt_najlepsze,9999999);
+    najlepsze.clear();
 }

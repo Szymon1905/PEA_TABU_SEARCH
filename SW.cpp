@@ -3,12 +3,12 @@
 
 using namespace std;
 
-double temperatura = 1000000;
+double temperatura = 1;
 // koszt tej sciezki razy alfa = tempertura
 
 // todo obliczyć temperturę dynamicznie
 
-double alfa = 0.98;
+double alfa = 0.99;
 
 vector<int> najlepsze;
 int koszt_najlepsze = 9999999;
@@ -33,8 +33,12 @@ void SW(vector<int> x, vector<vector<int>> macierz){
     int koszt_y;
     int koszt_x;
 
+
+
     // początek etapu 1
     koszt_x = oblicz_koszt_drogi_SW(x, macierz);
+
+    temperatura = temperatura * koszt_x * alfa;
 
     koszt_najlepsze = koszt_x;
     najlepsze = x;
@@ -64,7 +68,7 @@ void SW(vector<int> x, vector<vector<int>> macierz){
 
 
 
-    while (temperatura > 0.0000000001){
+    while (temperatura > 0.00000001){
         for (int i = 0; i < era; i++) {
 
             //shuffle(y.begin()+1, y.end()-1, gen); // etap 2
@@ -90,7 +94,7 @@ void SW(vector<int> x, vector<vector<int>> macierz){
                 double p = exp((-(koszt_y - koszt_x) / temperatura ));  // etap 6
                 uniform_real_distribution<double> distribution(0.0, 1.0);
                 double r = distribution(gen);
-                cout<<"prawdo: "<<p<<endl;
+                //cout<<"prawdo: "<<p<<endl;
 
                 if (r <= p){ // etap 7
                     koszt_x = koszt_y; // etap 4

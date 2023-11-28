@@ -46,8 +46,30 @@ vector<vector<int>> wczytaj_macierz(const string& daneWejsciowe, int &liczba_mia
 }
 
 
+// metody dywersyfikacji
+
+void swapowanie(vector<int> &rozwionzanie){
+    int miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
+    int miasto2 = rand() % (global_liczba_miast - 1) + 1;
+    swap(rozwionzanie[miasto1], rozwionzanie[miasto2]);
+}
+
+void wstawianie(vector<int> &rozwionzanie){
+    int wybrana = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
+    int pozycja = rand() % (global_liczba_miast - 1) + 1;
+    int miasto = rozwionzanie[wybrana];
 
 
+    rozwionzanie.erase(rozwionzanie.begin() + wybrana);
+
+    rozwionzanie.insert(rozwionzanie.begin() + pozycja, miasto);
+}
+
+void odwracanie(vector<int> &rozwionzanie){
+    int poz1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
+    int poz2 = rand() % (global_liczba_miast - 1) + 1;
+    reverse(rozwionzanie.begin() + poz1, rozwionzanie.begin() + poz2);
+}
 
 
 

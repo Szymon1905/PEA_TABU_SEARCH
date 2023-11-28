@@ -9,6 +9,7 @@
 #include <fstream>
 #include <chrono>
 #include <Windows.h>
+#include <thread>
 #include "SW.h"
 
 using namespace std;
@@ -77,11 +78,11 @@ void odwracanie(vector<int> &rozwionzanie){
 
 
 
-// Tabu Search parameters
+// parametry
 const int liczba_iteracji = 100000;
 const int rozmiar_listy_tabu = 20;
 
-// Function to calculate the total cost of a rozwionzanie
+// oblicznaie dorgi
 int oblicz_koszt_drogi(const vector<int>& rozwionzanie, vector<vector<int>> macierz) {
     int suma = 0;
     for (int i = 0; i < global_liczba_miast - 1; ++i) {
@@ -124,7 +125,7 @@ void generuj_zachlannie_rozwionzanie(vector<vector<int>> macierz, vector<int> &n
     generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, rozwionzanie, wybrane_miasto, dlugosc_drogi);
 }
 
-// Function to perform the Tabu Search
+// Tabu Search
 vector<int> tabuSearch(const vector<vector<int>> macierz) {
     ////////////////////////////////////////////////////////////
 
@@ -236,6 +237,96 @@ void TABU_test(){
 }
 
 
+vector<int> tabu_time(vector<vector<int>> macierz){
+
+    vector<int> zachlanna;
+    zachlanna.push_back(0);
+    vector<int> nieodwiedzone;
+    for (int i = 1; i < global_liczba_miast; i++) {
+        nieodwiedzone.push_back(i);
+    }
+
+    int dlugosc_drogi = 0;
+    generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, zachlanna, 0, dlugosc_drogi);
+    zachlanna.push_back(0);
+
+    cout<<"Dlugość drogi zachłannie: "<<dlugosc_drogi<<endl;
+    for (int miasto: zachlanna){
+        cout<<miasto<<" ";
+    }
+    cout<<endl;
+    cout<<endl;
+
+    vector<int> obecnie_najlepsze_rozwionzanie = zachlanna;
+    vector<int> najlepszeRozwionzanie = obecnie_najlepsze_rozwionzanie;
+    int obecny_koszt = dlugosc_drogi;
+    int najlepszy_koszt = obecny_koszt;
+
+    vector<vector<int>> lista_tabu;
+
+    int czas;
+    cout<<"Podaj czas w sekundach:"<<endl;
+    cin>>czas;
+
+    auto startTime = std::chrono::high_resolution_clock::now();
+    auto endTime = startTime + std::chrono::seconds(czas);
+
+    cout << "TABU czasowe ";
+    while (std::chrono::high_resolution_clock::now() < endTime) {
+        int losowe_miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
+        int losowe_miasto2 = rand() % (global_liczba_miast - 1) + 1;
+
+        // Zamieniam miasta w rozwiązaniu
+        swap(obecnie_najlepsze_rozwionzanie[losowe_miasto1], obecnie_najlepsze_rozwionzanie[losowe_miasto2]);
+
+        // Obliczam koszt nowego rozwiązania
+        int nowy_koszt = oblicz_koszt_drogi(obecnie_najlepsze_rozwionzanie, macierz);
+
+        // Sprawdzam czy ruch jest wykonalny wobec listy tabu
+        if ((nowy_koszt < obecny_koszt ) && find(lista_tabu.begin(), lista_tabu.end(), obecnie_najlepsze_rozwionzanie) == lista_tabu.end()) {
+            obecny_koszt = nowy_koszt;
+
+            // Aktualizuje najlepsze rozwiązanie jeśli je znajdę
+            if (obecny_koszt < najlepszy_koszt) {
+                najlepszeRozwionzanie = obecnie_najlepsze_rozwionzanie;
+                najlepszy_koszt = obecny_koszt;
+            }
+
+            // Dodaje obecne rozwiązanie do listy tabu
+            lista_tabu.push_back(obecnie_najlepsze_rozwionzanie);
+            if (lista_tabu.size() > rozmiar_listy_tabu) {
+                lista_tabu.erase(lista_tabu.begin());
+            }
+        } else {
+            // Cofam zamianę miast jeśli nie mogę tego zrobić
+            swap(obecnie_najlepsze_rozwionzanie[losowe_miasto1], obecnie_najlepsze_rozwionzanie[losowe_miasto2]);
+        }
+    }
+    return najlepszeRozwionzanie;
+}
+
+void tabu_time_start(){
+    string nazwa;
+    cout << "Podaj nazwe pliku: " << endl;
+    cin >> nazwa;
+    vector<vector<int> > macierz = wczytaj_macierz(nazwa, global_liczba_miast);
+
+    vector<int> rozwionzanie = tabu_time(macierz);
+
+    cout<<endl;
+    cout<<endl;
+    cout<<endl;
+    cout << "Finalna Droga: ";
+    for (int elem: rozwionzanie) {
+        cout << elem << " ";
+    }
+    cout << endl;
+    cout << "Finalny Koszt: " << oblicz_koszt_drogi(rozwionzanie, macierz) << endl;
+    cout<<endl;
+}
+
+
+
 void SW_start(){
     string nazwa;
     cout << "Podaj nazwe pliku: " << endl;
@@ -262,6 +353,10 @@ void SW_start(){
 
 
 
+
+
+
+
 int main() {
     srand(time(nullptr)); // Seed for randomization
 
@@ -276,6 +371,7 @@ int main() {
         cout << "1 - TABU1" << endl;
         cout << "2 - TABU_test" << endl;
         cout << "3 - SWt" << endl;
+        cout << "4 - TABU_time" << endl;
         cin>>opcja;
 
         switch (opcja) {
@@ -293,6 +389,8 @@ int main() {
                 TABU_test();
             case 3:
                 SW_start();
+            case 4:
+                tabu_time_start();
         }
     }
 }

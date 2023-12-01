@@ -236,6 +236,21 @@ void TABU_test(){
     }
 }
 
+void odliczanie(int sekundy) {
+    auto start = std::chrono::high_resolution_clock::now();
+    auto koniec = start + std::chrono::seconds(sekundy);
+
+    while (std::chrono::high_resolution_clock::now() < koniec) {
+        std::cout << "\rPozostały czas: " << std::chrono::duration_cast<std::chrono::seconds>(koniec - std::chrono::high_resolution_clock::now()).count() << " sekund";
+        std::cout.flush();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    std::cout << "\rPozostały czas: 0 sekund" << std::endl;
+    std::cout << "Koniec czasu" << std::endl;
+}
+
+
 
 vector<int> tabu_time(vector<vector<int>> macierz){
 
@@ -271,6 +286,8 @@ vector<int> tabu_time(vector<vector<int>> macierz){
     auto startTime = std::chrono::high_resolution_clock::now();
     auto endTime = startTime + std::chrono::seconds(czas);
 
+    thread countdown_thread(odliczanie, czas);
+
     cout << "TABU czasowe ";
     while (std::chrono::high_resolution_clock::now() < endTime) {
         int losowe_miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
@@ -302,6 +319,7 @@ vector<int> tabu_time(vector<vector<int>> macierz){
             swap(obecnie_najlepsze_rozwionzanie[losowe_miasto1], obecnie_najlepsze_rozwionzanie[losowe_miasto2]);
         }
     }
+    countdown_thread.join();
     return najlepszeRozwionzanie;
 }
 
@@ -350,7 +368,6 @@ void SW_start(){
 
     cout<<"koniec SW"<<endl;
 }
-
 
 
 

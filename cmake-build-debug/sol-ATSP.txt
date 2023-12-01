@@ -27,3 +27,4 @@ Best solution of ATSP
     rbg403: 2465
     rbg443: 2720
     ry48p: 14422
+

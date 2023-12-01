@@ -60,7 +60,6 @@ void wstawianie(vector<int> &rozwionzanie){
     int pozycja = rand() % (global_liczba_miast - 1) + 1;
     int miasto = rozwionzanie[wybrana];
 
-
     rozwionzanie.erase(rozwionzanie.begin() + wybrana);
 
     rozwionzanie.insert(rozwionzanie.begin() + pozycja, miasto);
@@ -237,17 +236,17 @@ void TABU_test(){
 }
 
 void odliczanie(int sekundy) {
-    auto start = std::chrono::high_resolution_clock::now();
-    auto koniec = start + std::chrono::seconds(sekundy);
+    auto start = chrono::high_resolution_clock::now();
+    auto koniec = start + chrono::seconds(sekundy);
 
-    while (std::chrono::high_resolution_clock::now() < koniec) {
-        std::cout << "\rPozostały czas: " << std::chrono::duration_cast<std::chrono::seconds>(koniec - std::chrono::high_resolution_clock::now()).count() << " sekund";
-        std::cout.flush();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    while (chrono::high_resolution_clock::now() < koniec) {
+        cout << "\rPozostały czas: " << chrono::duration_cast<chrono::seconds>(koniec - chrono::high_resolution_clock::now()).count() << " sekund";
+        cout.flush();
+        this_thread::sleep_for(chrono::milliseconds(100));
     }
 
-    std::cout << "\rPozostały czas: 0 sekund" << std::endl;
-    std::cout << "Koniec czasu" << std::endl;
+    cout << "\rPozostały czas: 0 sekund" << endl;
+    cout << "Koniec czasu" << endl;
 }
 
 
@@ -283,13 +282,13 @@ vector<int> tabu_time(vector<vector<int>> macierz){
     cout<<"Podaj czas w sekundach:"<<endl;
     cin>>czas;
 
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = startTime + std::chrono::seconds(czas);
+    auto startTime = chrono::high_resolution_clock::now();
+    auto endTime = startTime + chrono::seconds(czas);
 
     thread countdown_thread(odliczanie, czas);
 
     cout << "TABU czasowe ";
-    while (std::chrono::high_resolution_clock::now() < endTime) {
+    while (chrono::high_resolution_clock::now() < endTime) {
         int losowe_miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
         int losowe_miasto2 = rand() % (global_liczba_miast - 1) + 1;
 

@@ -16,6 +16,39 @@ int oblicz_koszt_drogi_SW2(const vector<int> rozwionzanie, vector<vector<int>> m
     return suma;
 }
 
+void generuj_zachlannie_rozwionzanie2(vector<vector<int>> macierz, vector<int> &nieodwiedzone, vector<int> &rozwionzanie, int miasto_badane, int &dlugosc_drogi ) {
+    int najmniejsza=INFINITY;
+    int wybrane_miasto = -1;  // kolejne miasto do którego ide
+
+    if (nieodwiedzone.empty()){
+        dlugosc_drogi = dlugosc_drogi + macierz[miasto_badane][0];
+        return;
+    }
+
+    for (int miasto : nieodwiedzone){
+
+        if(miasto_badane == miasto){  // pomijam miasto samo do siebie
+            continue;
+        }
+
+        if (macierz[miasto_badane][miasto] < najmniejsza){   // szukam nowej drogi krótkiej z nieodwiedzonych miast
+            najmniejsza = macierz[miasto_badane][miasto];
+            wybrane_miasto = miasto;
+        }
+    }
+
+    dlugosc_drogi = dlugosc_drogi + najmniejsza;
+
+    // dodaje miasto do rozwiązania
+    rozwionzanie.push_back(wybrane_miasto);
+
+    // usuwam miasto bo jest odwiedzone
+    nieodwiedzone.erase(remove(nieodwiedzone.begin(), nieodwiedzone.end(), wybrane_miasto), nieodwiedzone.end());
+
+    //rekurencja
+    generuj_zachlannie_rozwionzanie2(macierz, nieodwiedzone, rozwionzanie, wybrane_miasto, dlugosc_drogi);
+}
+
 
 vector<int> randomPathGenerator(vector<int> currentPath, int dimension){
 
@@ -60,8 +93,8 @@ vector<int> neighbourSwapTwoCities(vector<int> currentPath, int dimension) {
 void SW2(vector<vector<int>> macierz){
     // Inicjalizacja (wygenerowanie początkowego rozwiązania i ustawienie temperatury początkowej)
     vector<int> currentPath;
-    vector<int> bestPath;
-    double coolingRate = 0.99;
+    vector<int> najlepsze_rozwionzanie;
+    double alfa = 0.99;
     int eraLength = macierz.size()*5;
 
     // Inicjalizacja generatora liczb losowych
@@ -69,34 +102,43 @@ void SW2(vector<vector<int>> macierz){
     mt19937 generator(rd());
 
     // Generowanie początkowego rozwiązania poprzez losowanie
-    currentPath = randomPathGenerator(currentPath, macierz.size());
+    //currentPath = randomPathGenerator(currentPath, macierz.size());
 
 
 
     // Generowanie początkowego rozwiązania metodą zachłanną
-    // currentPath = greedyPathGenerator(currentPath, dimension);
+    vector<int> rozwionzanie;
+    rozwionzanie.push_back(0);
+    vector<int> nieodwiedzone;
+    for (int i = 1; i < macierz.size(); i++) {
+        nieodwiedzone.push_back(i);
+    }
+
+    int dlugosc_drogi = 0;
+    generuj_zachlannie_rozwionzanie2(macierz, nieodwiedzone, rozwionzanie, 0, dlugosc_drogi);
+    rozwionzanie.push_back(0);
 
     // Oblicz początkową temperaturę
-    double temperature = oblicz_koszt_drogi_SW2(currentPath,macierz) * coolingRate;
+    double temperatura = oblicz_koszt_drogi_SW2(rozwionzanie, macierz) * alfa;
 
-    int minimum = INT_MAX;
+    int najlepsza_droga = INT_MAX;
 
-    while(temperature > 0.000000001){
+    while(temperatura > 0.000000001){
         for(int i = 0; i < eraLength; i++){
             // Wygeneruj sąsiada poprzrez zmianę kolejności połowy miast
-            // vector<int> neighbourPath = neighbourSwapHalfCities(currentPath, dimension);
+            // vector<int> nowe_rozwionzanie = neighbourSwapHalfCities(currentPath, dimension);
 
             // Wygeneruj sąsiada poprzez odwrócenie fragmentu trasy
-            // vector<int> neighbourPath = neighbourInvertCities(currentPath, dimension);
+            // vector<int> nowe_rozwionzanie = neighbourInvertCities(currentPath, dimension);
 
-            // Wygeneruj sąsiada poprzez swapowanie dwóch miast, z upewnieniem się, że nie zostanie wylosowane to samo miasto
-            vector<int> neighbourPath = neighbourSwapTwoCities(currentPath, macierz.size());
+            // zamiana 2 miast miejscami
+            vector<int> nowe_rozwionzanie = neighbourSwapTwoCities(rozwionzanie, macierz.size());
 
-            int currentPathCost = calculateSum(currentPath, macierz);
-            int neighbourPathCost = calculateSum(neighbourPath, macierz);
+            int obecny_koszt = calculateSum(rozwionzanie, macierz);
+            int nowy_koszt = calculateSum(nowe_rozwionzanie, macierz);
 
             // Oblicz prawdopodobieństwo zaakceptowania gorszego rozwiązania
-            double probability = exp((currentPathCost - neighbourPathCost) / temperature);
+            double probability = exp((obecny_koszt - nowy_koszt) / temperatura);
 
             // Jeżeli trasa-sąsiad jest krótsza, zaakceptuj ją
             // jeżeli jest dłuższa to zaakceptuj ją z prawdpodobieństwem probability
@@ -105,22 +147,22 @@ void SW2(vector<vector<int>> macierz){
             uniform_real_distribution<double> distribution(0.0, 1.0);
 
             double rand = distribution(generator);
-            if((neighbourPathCost < currentPathCost) || (rand < probability)){
-                currentPath = neighbourPath;
+            if((nowy_koszt < obecny_koszt) || (rand < probability)){
+                rozwionzanie = nowe_rozwionzanie;
 
                 //  aktualizacja najkrótszej trasy
-                if(currentPathCost < minimum){
-                    minimum = currentPathCost;
-                    bestPath = currentPath;
+                if(obecny_koszt < najlepsza_droga){
+                    najlepsza_droga = obecny_koszt;
+                    najlepsze_rozwionzanie = rozwionzanie;
                 }
             }
         }
-        temperature *= coolingRate;
+        temperatura = temperatura * alfa;
     }
     cout<<"Droga: ";
-    for (int elem : bestPath){
+    for (int elem : najlepsze_rozwionzanie){
         cout<<elem<<" ";
     }
     cout<<endl;
-    cout << minimum << endl;
+    cout << najlepsza_droga << endl;
 }

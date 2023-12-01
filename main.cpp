@@ -11,7 +11,7 @@
 #include <Windows.h>
 #include <thread>
 #include "SW.h"
-
+#include "SW2.h"
 using namespace std;
 
 const int INF = MAXINT;
@@ -362,6 +362,8 @@ void SW_start(){
     generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, rozwionzanie, 0, dlugosc_drogi);
     rozwionzanie.push_back(0);
 
+
+
     // koniec etapu 1
 
     SW(rozwionzanie, macierz);
@@ -369,8 +371,36 @@ void SW_start(){
     cout<<"koniec SW"<<endl;
 }
 
+void SW2_start(){
+    string nazwa;
+    cout << "Podaj nazwe pliku: " << endl;
+    cin >> nazwa;
+    vector<vector<int> > macierz = wczytaj_macierz(nazwa, global_liczba_miast);
 
+    vector<int> rozwionzanie;
+    rozwionzanie.push_back(0);
+    vector<int> nieodwiedzone;
+    for (int i = 1; i < global_liczba_miast; i++) {
+        nieodwiedzone.push_back(i);
+    }
 
+    int dlugosc_drogi = 0;
+    generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, rozwionzanie, 0, dlugosc_drogi);
+    rozwionzanie.push_back(0);
+
+    cout<<"Dlugość drogi zachłannie: "<<dlugosc_drogi<<endl;
+    for (int miasto: rozwionzanie){
+        cout<<miasto<<" ";
+    }
+    cout<<endl;
+    cout<<endl;
+
+    // koniec etapu 1
+
+    SW2(macierz);
+
+    cout<<"koniec SW 2.0"<<endl;
+}
 
 
 
@@ -389,6 +419,7 @@ int main() {
         cout << "2 - TABU_test" << endl;
         cout << "3 - SWt" << endl;
         cout << "4 - TABU_time" << endl;
+        cout << "5 - SW 2.0" << endl;
         cin>>opcja;
 
         switch (opcja) {
@@ -408,6 +439,8 @@ int main() {
                 SW_start();
             case 4:
                 tabu_time_start();
+            case 5:
+                SW2_start();
         }
     }
 }

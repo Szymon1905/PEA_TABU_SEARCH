@@ -289,7 +289,6 @@ void odliczanie(int sekundy) {
 }
 
 
-
 vector<int> tabu_time(vector<vector<int>> macierz){
 
     vector<int> zachlanna;
@@ -321,13 +320,13 @@ vector<int> tabu_time(vector<vector<int>> macierz){
     cout<<"Podaj czas w sekundach:"<<endl;
     cin>>czas;
 
-    auto startTime = chrono::high_resolution_clock::now();
-    auto endTime = startTime + chrono::seconds(czas);
+    auto start = chrono::high_resolution_clock::now();
+    auto stop = start + chrono::seconds(czas);
 
     thread countdown_thread(odliczanie, czas);
 
     cout << "TABU czasowe ";
-    while (chrono::high_resolution_clock::now() < endTime) {
+    while (chrono::high_resolution_clock::now() < stop) {
         int losowe_miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
         int losowe_miasto2 = rand() % (global_liczba_miast - 1) + 1;
 
@@ -345,19 +344,22 @@ vector<int> tabu_time(vector<vector<int>> macierz){
             if (obecny_koszt < najlepszy_koszt) {
                 najlepszeRozwionzanie = obecnie_najlepsze_rozwionzanie;
                 najlepszy_koszt = obecny_koszt;
+                auto t = chrono::high_resolution_clock::now();
+                auto minelo_czasu = chrono::duration_cast<chrono::seconds>(t - start).count();
+                cout << "Nowe najlepsze rozwiazanie znalezione po " << minelo_czasu << " sekundach." << endl;
             }
 
             // Dodaje obecne rozwiązanie do listy tabu
             lista_tabu.push_back(obecnie_najlepsze_rozwionzanie);
             if (lista_tabu.size() > rozmiar_listy_tabu) {
-                lista_tabu.erase(lista_tabu.begin());
+                lista_tabu.erase(lista_tabu.begin()); // usuwa ostatni element
             }
         } else {
             // Cofam zamianę miast jeśli nie mogę tego zrobić
             swap(obecnie_najlepsze_rozwionzanie[losowe_miasto1], obecnie_najlepsze_rozwionzanie[losowe_miasto2]);
         }
     }
-    countdown_thread.join();
+    countdown_thread.join();  // czeka na wontek
     return najlepszeRozwionzanie;
 }
 
@@ -443,7 +445,7 @@ void SW2_start(){
 
 
 int main() {
-    srand(time(nullptr)); // Seed for randomization
+    srand(time(nullptr)); // ziarno
 
     SetConsoleOutputCP(CP_UTF8); // Konsola ustawiona na utf-8 aby były Polskie litery
     cout<<"Autor: Szymon Borzdyński"<<endl;

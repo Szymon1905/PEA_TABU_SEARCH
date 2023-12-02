@@ -137,7 +137,7 @@ void SW2(vector<vector<int>> macierz){
             uniform_real_distribution<double> distribution(0.0, 1.0);
 
             double rand = distribution(gen);
-            if((nowy_koszt < obecny_koszt) || (rand < probability)){
+            if((nowy_koszt < obecny_koszt) or (rand < probability)){
                 rozwionzanie = nowe_rozwionzanie;
 
                 //  aktualizacja najkrótszej trasy

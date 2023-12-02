@@ -48,10 +48,16 @@ vector<vector<int>> wczytaj_macierz(const string& daneWejsciowe, int &liczba_mia
 
 
 // metody dywersyfikacji
+int miasto1;
+int miasto2;
+
+vector<int> poprzednie_z_wstawiania;
+vector<int> poprzednie_z_odwracania;
+
 
 void swapowanie(vector<int> &rozwionzanie){
-    int miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
-    int miasto2 = rand() % (global_liczba_miast - 1) + 1;
+    miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
+    miasto2 = rand() % (global_liczba_miast - 1) + 1;
     swap(rozwionzanie[miasto1], rozwionzanie[miasto2]);
 }
 
@@ -60,14 +66,19 @@ void wstawianie(vector<int> &rozwionzanie){
     int pozycja = rand() % (global_liczba_miast - 1) + 1;
     int miasto = rozwionzanie[wybrana];
 
+    poprzednie_z_wstawiania = rozwionzanie;
+
     rozwionzanie.erase(rozwionzanie.begin() + wybrana);
 
     rozwionzanie.insert(rozwionzanie.begin() + pozycja, miasto);
 }
 
 void odwracanie(vector<int> &rozwionzanie){
-    int poz1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
+    int poz1 = rand() % (global_liczba_miast - 1) + 1;
     int poz2 = rand() % (global_liczba_miast - 1) + 1;
+
+    poprzednie_z_odwracania = rozwionzanie; // zapisuje poprzednika aby móc cofnąć w razie potrzeby
+
     reverse(rozwionzanie.begin() + poz1, rozwionzanie.begin() + poz2);
 }
 
@@ -125,7 +136,7 @@ void generuj_zachlannie_rozwionzanie(vector<vector<int>> macierz, vector<int> &n
 }
 
 // Tabu Search
-vector<int> tabuSearch(const vector<vector<int>> macierz) {
+vector<int> tabuSearch(const vector<vector<int>> macierz,int typ_dywersyfikacji=1) {
     ////////////////////////////////////////////////////////////
 
     vector<int> rozwionzanie;
@@ -156,11 +167,19 @@ vector<int> tabuSearch(const vector<vector<int>> macierz) {
     vector<vector<int>> lista_tabu;
 
     for (int iteracja = 0; iteracja < liczba_iteracji; iteracja++) {
-        int losowe_miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
-        int losowe_miasto2 = rand() % (global_liczba_miast - 1) + 1;
-
-        // Zamieniam miasta w rozwiązaniu
-        swap(obecnie_najlepsze_rozwionzanie[losowe_miasto1], obecnie_najlepsze_rozwionzanie[losowe_miasto2]);
+        switch(typ_dywersyfikacji){
+            case 1:
+                swapowanie(obecnie_najlepsze_rozwionzanie);
+                break;
+            case 2:
+                wstawianie(obecnie_najlepsze_rozwionzanie);
+                break;
+            case 3:
+                odwracanie(obecnie_najlepsze_rozwionzanie);
+                break;
+            default:
+                break;
+        }
 
         // Obliczam koszt nowego rozwiązania
         int nowy_koszt = oblicz_koszt_drogi(obecnie_najlepsze_rozwionzanie, macierz);
@@ -182,7 +201,20 @@ vector<int> tabuSearch(const vector<vector<int>> macierz) {
             }
         } else {
             // Cofam zamianę miast jeśli nie mogę tego zrobić
-            swap(obecnie_najlepsze_rozwionzanie[losowe_miasto1], obecnie_najlepsze_rozwionzanie[losowe_miasto2]);
+            switch(typ_dywersyfikacji){
+                case 1:
+                    swap(obecnie_najlepsze_rozwionzanie[miasto1], obecnie_najlepsze_rozwionzanie[miasto2]);
+                    break;
+                case 2:
+                    obecnie_najlepsze_rozwionzanie = poprzednie_z_wstawiania;
+                    break;
+                case 3:
+                    obecnie_najlepsze_rozwionzanie = poprzednie_z_odwracania;
+                    break;
+                default:
+                    break;
+
+            }
         }
     }
 
@@ -199,9 +231,16 @@ void TABU1(){
 
     vector<vector<int> > macierz = wczytaj_macierz(nazwa_pliku, global_liczba_miast);
 
+    cout<<"1 -swapowanie"<<endl;
+    cout<<"2 -wstawianie"<<endl;
+    cout<<"3 -odwracanie"<<endl;
+
+    int typ_dywersyfikacji;
+    cin>>typ_dywersyfikacji;
+
     auto start = chrono::high_resolution_clock::now(); // start pomiaru czasu
 
-    vector<int> rozwionzanie = tabuSearch(macierz);
+    vector<int> rozwionzanie = tabuSearch(macierz,typ_dywersyfikacji);
 
     auto koniec = chrono::high_resolution_clock::now(); // koniec pomiaru czasu
 
@@ -407,16 +446,16 @@ int main() {
     srand(time(nullptr)); // Seed for randomization
 
     SetConsoleOutputCP(CP_UTF8); // Konsola ustawiona na utf-8 aby były Polskie litery
-
+    cout<<"Autor: Szymon Borzdyński"<<endl;
     int opcja;
 
     while(true){
-        cout<<"Autor: Szymon Borzdyński"<<endl;
+
         cout << "Opcje:" << endl;
         cout << "0 - Wyjście" << endl;
-        cout << "1 - TABU1" << endl;
-        cout << "2 - TABU_test" << endl;
-        cout << "3 - SWt" << endl;
+        cout << "1 - [stare] TABU1 " << endl;
+        cout << "2 - [stare] TABU_test " << endl;
+        cout << "3 - [stare] SWt " << endl;
         cout << "4 - TABU_time" << endl;
         cout << "5 - SW 2.0" << endl;
         cin>>opcja;
@@ -434,12 +473,16 @@ int main() {
                 break;
             case 2:
                 TABU_test();
+                break;
             case 3:
                 SW_start();
+                break;
             case 4:
                 tabu_time_start();
+                break;
             case 5:
                 SW2_start();
+                break;
         }
     }
 }

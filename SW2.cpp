@@ -6,7 +6,7 @@
 
 // Inicjalizacja generatora liczb losowych
 random_device rd;
-mt19937 generator(rd());
+mt19937 gen(rd());
 
 int oblicz_koszt_drogi_SW2(const vector<int> rozwionzanie, vector<vector<int>> macierz) {
     int suma = 0;
@@ -50,19 +50,6 @@ void generuj_zachlannie_rozwionzanie2(vector<vector<int>> macierz, vector<int> &
 }
 
 
-vector<int> randomPathGenerator(vector<int> currentPath, int dimension){
-
-    uniform_int_distribution<> distribution(0,dimension-1);
-
-    for(int i = 0; i < dimension; i++){
-        int rand = distribution(generator);
-        while(find(currentPath.begin(), currentPath.end(), rand) != currentPath.end()){
-            rand = distribution(generator);
-        }
-        currentPath.push_back(rand);
-    }
-    return currentPath;
-}
 
 int calculateSum(const vector<int>& path, vector<vector<int>> macierz) {
     int value = 0;
@@ -80,10 +67,10 @@ int calculateSum(const vector<int>& path, vector<vector<int>> macierz) {
 vector<int> neighbourSwapTwoCities(vector<int> currentPath, int dimension) {
     vector<int> neighbourPath = currentPath;
 
-    uniform_int_distribution<> distribution(0,dimension-1);
+    uniform_int_distribution<> dis(0,dimension-1);
 
-    int city1 = distribution(generator);
-    int city2 = distribution(generator);
+    int city1 = dis(gen);
+    int city2 = dis(gen);
 
     swap(neighbourPath[city1], neighbourPath[city2]);
     return neighbourPath;
@@ -96,10 +83,6 @@ void SW2(vector<vector<int>> macierz){
     vector<int> najlepsze_rozwionzanie;
     double alfa = 0.99;
     int eraLength = macierz.size()*5;
-
-    // Inicjalizacja generatora liczb losowych
-    random_device rd;
-    mt19937 generator(rd());
 
     // Generowanie początkowego rozwiązania poprzez losowanie
     //currentPath = randomPathGenerator(currentPath, macierz.size());
@@ -118,6 +101,8 @@ void SW2(vector<vector<int>> macierz){
     generuj_zachlannie_rozwionzanie2(macierz, nieodwiedzone, rozwionzanie, 0, dlugosc_drogi);
     rozwionzanie.push_back(0);
 
+    najlepsze_rozwionzanie = rozwionzanie;
+
     // Oblicz początkową temperaturę
     double temperatura = oblicz_koszt_drogi_SW2(rozwionzanie, macierz) * alfa;
 
@@ -132,10 +117,15 @@ void SW2(vector<vector<int>> macierz){
             // vector<int> nowe_rozwionzanie = neighbourInvertCities(currentPath, dimension);
 
             // zamiana 2 miast miejscami
-            vector<int> nowe_rozwionzanie = neighbourSwapTwoCities(rozwionzanie, macierz.size());
+            vector<int> nowe_rozwionzanie = rozwionzanie;
 
-            int obecny_koszt = calculateSum(rozwionzanie, macierz);
-            int nowy_koszt = calculateSum(nowe_rozwionzanie, macierz);
+            uniform_int_distribution<> dis(1, macierz.size() - 2);
+            int elem1 = dis(gen);
+            int elem2 = dis(gen);
+            swap(nowe_rozwionzanie[elem1], nowe_rozwionzanie[elem2]);
+
+            int obecny_koszt = oblicz_koszt_drogi_SW2(rozwionzanie, macierz);
+            int nowy_koszt = oblicz_koszt_drogi_SW2(nowe_rozwionzanie, macierz);
 
             // Oblicz prawdopodobieństwo zaakceptowania gorszego rozwiązania
             double probability = exp((obecny_koszt - nowy_koszt) / temperatura);
@@ -146,7 +136,7 @@ void SW2(vector<vector<int>> macierz){
 
             uniform_real_distribution<double> distribution(0.0, 1.0);
 
-            double rand = distribution(generator);
+            double rand = distribution(gen);
             if((nowy_koszt < obecny_koszt) || (rand < probability)){
                 rozwionzanie = nowe_rozwionzanie;
 

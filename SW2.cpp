@@ -2,13 +2,17 @@
 #include <algorithm>
 #include <random>
 #include <vector>
+#include <chrono>
 
 
 // Inicjalizacja generatora liczb losowych
 random_device rd;
 mt19937 gen(rd());
 
-int oblicz_koszt_drogi_SW2(const vector<int> rozwionzanie, vector<vector<int>> macierz) {
+double minimalna_temperatura = 0.000000001;
+
+
+int oblicz_koszt_drogi_SW2(const vector<int>& rozwionzanie, vector<vector<int>> macierz) {
     int suma = 0;
     for (int i = 0; i < rozwionzanie.size() - 1; i++) {
         suma += macierz[rozwionzanie[i]][rozwionzanie[i + 1]];
@@ -49,44 +53,15 @@ void generuj_zachlannie_rozwionzanie2(vector<vector<int>> macierz, vector<int> &
     generuj_zachlannie_rozwionzanie2(macierz, nieodwiedzone, rozwionzanie, wybrane_miasto, dlugosc_drogi);
 }
 
-
-
-int calculateSum(const vector<int>& path, vector<vector<int>> macierz) {
-    int value = 0;
-    for (int i = 0; i < macierz.size() - 1; i++) {
-        value += macierz[path[i]][path[i + 1]];
-    }
-    // Koszt powrotu do miasta początkowego
-    value += macierz[path[macierz.size() - 1]][path[0]];
-    return value;
-}
-
-
-
-
-vector<int> neighbourSwapTwoCities(vector<int> currentPath, int dimension) {
-    vector<int> neighbourPath = currentPath;
-
-    uniform_int_distribution<> dis(0,dimension-1);
-
-    int city1 = dis(gen);
-    int city2 = dis(gen);
-
-    swap(neighbourPath[city1], neighbourPath[city2]);
-    return neighbourPath;
-}
-
-
 void SW2(vector<vector<int>> macierz){
     // Inicjalizacja (wygenerowanie początkowego rozwiązania i ustawienie temperatury początkowej)
     vector<int> currentPath;
     vector<int> najlepsze_rozwionzanie;
     double alfa = 0.99;
-    int eraLength = macierz.size()*5;
+    int iteracja = macierz.size() * 5;
 
-    // Generowanie początkowego rozwiązania poprzez losowanie
-    //currentPath = randomPathGenerator(currentPath, macierz.size());
-
+    uniform_real_distribution<double> dis_r(0.0, 1.0);
+    uniform_int_distribution<> dis(1, macierz.size() - 2);
 
 
     // Generowanie początkowego rozwiązania metodą zachłanną
@@ -105,21 +80,26 @@ void SW2(vector<vector<int>> macierz){
 
     // Oblicz początkową temperaturę
     double temperatura = oblicz_koszt_drogi_SW2(rozwionzanie, macierz) * alfa;
+    cout<<"Temperatura początkowa: "<<temperatura<<endl;
+    cout<<endl;
 
-    int najlepsza_droga = INT_MAX;
+    int najlepsza_droga = oblicz_koszt_drogi_SW2(rozwionzanie, macierz);
 
-    while(temperatura > 0.000000001){
-        for(int i = 0; i < eraLength; i++){
-            // Wygeneruj sąsiada poprzrez zmianę kolejności połowy miast
-            // vector<int> nowe_rozwionzanie = neighbourSwapHalfCities(currentPath, dimension);
+    auto start = chrono::high_resolution_clock::now();
 
-            // Wygeneruj sąsiada poprzez odwrócenie fragmentu trasy
-            // vector<int> nowe_rozwionzanie = neighbourInvertCities(currentPath, dimension);
+    while(temperatura > minimalna_temperatura){
+        for(int i = 0; i < iteracja; i++){
+
+
+
+
+
+
+
 
             // zamiana 2 miast miejscami
             vector<int> nowe_rozwionzanie = rozwionzanie;
 
-            uniform_int_distribution<> dis(1, macierz.size() - 2);
             int elem1 = dis(gen);
             int elem2 = dis(gen);
             swap(nowe_rozwionzanie[elem1], nowe_rozwionzanie[elem2]);
@@ -128,26 +108,28 @@ void SW2(vector<vector<int>> macierz){
             int nowy_koszt = oblicz_koszt_drogi_SW2(nowe_rozwionzanie, macierz);
 
             // Oblicz prawdopodobieństwo zaakceptowania gorszego rozwiązania
-            double probability = exp((obecny_koszt - nowy_koszt) / temperatura);
+            double p = exp((obecny_koszt - nowy_koszt) / temperatura);
 
-            // Jeżeli trasa-sąsiad jest krótsza, zaakceptuj ją
-            // jeżeli jest dłuższa to zaakceptuj ją z prawdpodobieństwem probability
+            // Jeżeli nowe rozwiązanie jest krótsze, to akceptuje je
+            // jeżeli jest dłuższe to akceptuje je ale z prawdpodobieństwem r <=p
 
-
-            uniform_real_distribution<double> distribution(0.0, 1.0);
-
-            double rand = distribution(gen);
-            if((nowy_koszt < obecny_koszt) or (rand < probability)){
+            double r = dis_r(gen);
+            if((nowy_koszt < obecny_koszt) or (r <= p)){
                 rozwionzanie = nowe_rozwionzanie;
 
                 //  aktualizacja najkrótszej trasy
                 if(obecny_koszt < najlepsza_droga){
                     najlepsza_droga = obecny_koszt;
                     najlepsze_rozwionzanie = rozwionzanie;
+
+                    auto t = chrono::high_resolution_clock::now();
+                    auto minelo_czasu = chrono::duration_cast<chrono::seconds>(t - start).count();
+                    cout << "Nowe najlepsze rozwiazanie znalezione po " << minelo_czasu << " sekundach." << endl;
+                    cout << "Tempertura: " << temperatura << endl;
                 }
             }
         }
-        temperatura = temperatura * alfa;
+        temperatura = temperatura * alfa; // schładzanie
     }
     cout<<"Droga: ";
     for (int elem : najlepsze_rozwionzanie){

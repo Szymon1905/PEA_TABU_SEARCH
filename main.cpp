@@ -90,7 +90,7 @@ void odwracanie(vector<int> &rozwionzanie){
 
 // parametry
 const int liczba_iteracji = 100000;
-const int rozmiar_listy_tabu = 20;
+const int rozmiar_listy_tabu = 200;
 
 // oblicznaie dorgi
 int oblicz_koszt_drogi(const vector<int>& rozwionzanie, vector<vector<int>> macierz) {
@@ -149,7 +149,7 @@ vector<int> tabuSearch(const vector<vector<int>> macierz,int typ_dywersyfikacji=
     int dlugosc_drogi = 0;
     generuj_zachlannie_rozwionzanie(macierz, nieodwiedzone, rozwionzanie, 0, dlugosc_drogi);
     rozwionzanie.push_back(0);
-
+    cout<<endl;
     cout<<"Dlugość drogi zachłannie: "<<dlugosc_drogi<<endl;
     for (int miasto: rozwionzanie){
         cout<<miasto<<" ";
@@ -238,11 +238,13 @@ void TABU1(){
     int typ_dywersyfikacji;
     cin>>typ_dywersyfikacji;
 
-    auto start = chrono::high_resolution_clock::now(); // start pomiaru czasu
+    //auto start = chrono::high_resolution_clock::now(); // start pomiaru czasu
+    for (int i = 0; i < 10; ++i) {
+
 
     vector<int> rozwionzanie = tabuSearch(macierz,typ_dywersyfikacji);
 
-    auto koniec = chrono::high_resolution_clock::now(); // koniec pomiaru czasu
+    //auto koniec = chrono::high_resolution_clock::now(); // koniec pomiaru czasu
 
     cout << "Droga: ";
     for (int elem : rozwionzanie) {
@@ -250,10 +252,10 @@ void TABU1(){
     }
     cout<<endl;
     cout << "Koszt: " << oblicz_koszt_drogi(rozwionzanie, macierz) << endl;
-
-    auto czas_wykonania = chrono::duration_cast<chrono::microseconds>(koniec - start);
-    cout << "Czas wykonania: " << czas_wykonania.count() << " mikrosekund" << endl;
-    cout << "Czas wykonania: " << czas_wykonania.count() / 1000 << " milisekund" << endl;
+    }
+    //auto czas_wykonania = chrono::duration_cast<chrono::microseconds>(koniec - start);
+    //cout << "Czas wykonania: " << czas_wykonania.count() << " mikrosekund" << endl;
+    //cout << "Czas wykonania: " << czas_wykonania.count() / 1000 << " milisekund" << endl;
     cout<<endl;
 }
 
@@ -284,7 +286,7 @@ void odliczanie(int sekundy) {
         this_thread::sleep_for(chrono::milliseconds(100));
     }
 
-    cout << "\rPozostały czas: 0 sekund" << endl;
+    cout << "\rPozostały czas: 0 sekund  " << endl;
     cout << "Koniec czasu" << endl;
 }
 
@@ -320,6 +322,14 @@ vector<int> tabu_time(vector<vector<int>> macierz){
     cout<<"Podaj czas w sekundach:"<<endl;
     cin>>czas;
 
+
+    cout<<"1 -swapowanie"<<endl;
+    cout<<"2 -wstawianie"<<endl;
+    cout<<"3 -odwracanie"<<endl;
+
+    int typ_dywersyfikacji;
+    cin>>typ_dywersyfikacji;
+
     auto start = chrono::high_resolution_clock::now();
     auto stop = start + chrono::seconds(czas);
 
@@ -330,8 +340,20 @@ vector<int> tabu_time(vector<vector<int>> macierz){
         int losowe_miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
         int losowe_miasto2 = rand() % (global_liczba_miast - 1) + 1;
 
-        // Zamieniam miasta w rozwiązaniu
-        swap(obecnie_najlepsze_rozwionzanie[losowe_miasto1], obecnie_najlepsze_rozwionzanie[losowe_miasto2]);
+        // dywersyfikacja
+        switch(typ_dywersyfikacji){
+            case 1:
+                swapowanie(obecnie_najlepsze_rozwionzanie);
+                break;
+            case 2:
+                wstawianie(obecnie_najlepsze_rozwionzanie);
+                break;
+            case 3:
+                odwracanie(obecnie_najlepsze_rozwionzanie);
+                break;
+            default:
+                break;
+        }
 
         // Obliczam koszt nowego rozwiązania
         int nowy_koszt = oblicz_koszt_drogi(obecnie_najlepsze_rozwionzanie, macierz);
@@ -356,7 +378,20 @@ vector<int> tabu_time(vector<vector<int>> macierz){
             }
         } else {
             // Cofam zamianę miast jeśli nie mogę tego zrobić
-            swap(obecnie_najlepsze_rozwionzanie[losowe_miasto1], obecnie_najlepsze_rozwionzanie[losowe_miasto2]);
+            switch(typ_dywersyfikacji){
+                case 1:
+                    swap(obecnie_najlepsze_rozwionzanie[miasto1], obecnie_najlepsze_rozwionzanie[miasto2]);
+                    break;
+                case 2:
+                    obecnie_najlepsze_rozwionzanie = poprzednie_z_wstawiania;
+                    break;
+                case 3:
+                    obecnie_najlepsze_rozwionzanie = poprzednie_z_odwracania;
+                    break;
+                default:
+                    break;
+
+            }
         }
     }
     countdown_thread.join();  // czeka na wontek

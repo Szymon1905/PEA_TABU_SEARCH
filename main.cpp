@@ -17,7 +17,8 @@ using namespace std;
 const int INF = MAXINT;
 int global_liczba_miast;
 
-// todo pamietaj najlepsze globalnie
+vector<vector<int> > macierz;
+
 
 
 vector<vector<int>> wczytaj_macierz(const string& daneWejsciowe, int &liczba_miast) {
@@ -151,6 +152,7 @@ vector<int> tabuSearch(const vector<vector<int>> macierz,int typ_dywersyfikacji=
     rozwionzanie.push_back(0);
     cout<<endl;
     cout<<"Dlugość drogi zachłannie: "<<dlugosc_drogi<<endl;
+
     for (int miasto: rozwionzanie){
         cout<<miasto<<" ";
     }
@@ -330,6 +332,8 @@ vector<int> tabu_time(vector<vector<int>> macierz){
     int typ_dywersyfikacji;
     cin>>typ_dywersyfikacji;
 
+
+
     auto start = chrono::high_resolution_clock::now();
     auto stop = start + chrono::seconds(czas);
 
@@ -399,10 +403,12 @@ vector<int> tabu_time(vector<vector<int>> macierz){
 }
 
 void tabu_time_start(){
-    string nazwa;
-    cout << "Podaj nazwe pliku: " << endl;
-    cin >> nazwa;
-    vector<vector<int> > macierz = wczytaj_macierz(nazwa, global_liczba_miast);
+
+    if(macierz.size() == 0){
+        cout<<"brak macierzy"<<endl;
+        return;
+    }
+
 
     vector<int> rozwionzanie = tabu_time(macierz);
 
@@ -448,9 +454,10 @@ void SW_start(){
 
 void SW2_start(){
     string nazwa;
-    cout << "Podaj nazwe pliku: " << endl;
-    cin >> nazwa;
-    vector<vector<int> > macierz = wczytaj_macierz(nazwa, global_liczba_miast);
+    if(macierz.size() == 0){
+        cout<<"brak macierzy"<<endl;
+        return;
+    }
 
     vector<int> rozwionzanie;
     rozwionzanie.push_back(0);
@@ -485,16 +492,16 @@ int main() {
     SetConsoleOutputCP(CP_UTF8); // Konsola ustawiona na utf-8 aby były Polskie litery
     cout<<"Autor: Szymon Borzdyński"<<endl;
     int opcja;
-
+    string nazwa;
     while(true){
 
         cout << "Opcje:" << endl;
-        cout << "0 - Wyjście" << endl;
-        cout << "1 - [stare] TABU1 " << endl;
-        cout << "2 - [stare] TABU_test " << endl;
-        cout << "3 - [stare] SWt " << endl;
-        cout << "4 - TABU_time" << endl;
-        cout << "5 - SW 2.0" << endl;
+        cout << "0 - wczytaj macierz" << endl;
+        //cout << "1 - [stare] TABU1 " << endl;
+        //cout << "2 - [stare] TABU_test " << endl;
+        //cout << "3 - [stare] SW " << endl;
+        cout << "1 - TABU z czasomierzem" << endl;
+        cout << "2 - SW 2.0" << endl;
         cin>>opcja;
 
         switch (opcja) {
@@ -503,22 +510,25 @@ int main() {
                 cout << "Błędna opcja" << endl << endl;
                 cin >> opcja;
                 break;
-            case 0:
-                return 0;
-            case 1:
-                TABU1();
-                break;
-            case 2:
-                TABU_test();
-                break;
-            case 3:
-                SW_start();
+            case 5:
+                //TABU1();
                 break;
             case 4:
+                //TABU_test();
+                break;
+            case 3:
+                //SW_start();
+                break;
+            case 1:
                 tabu_time_start();
                 break;
-            case 5:
+            case 2:
                 SW2_start();
+                break;
+            case 0:
+                cout << "Podaj nazwe pliku: " << endl;
+                cin >> nazwa;
+                macierz = wczytaj_macierz(nazwa, global_liczba_miast);
                 break;
         }
     }

@@ -90,13 +90,6 @@ void SW2(vector<vector<int>> macierz){
     while(temperatura > minimalna_temperatura){
         for(int i = 0; i < iteracja; i++){
 
-
-
-
-
-
-
-
             // zamiana 2 miast miejscami
             vector<int> nowe_rozwionzanie = rozwionzanie;
 
@@ -131,6 +124,8 @@ void SW2(vector<vector<int>> macierz){
         }
         temperatura = temperatura * alfa; // schładzanie
     }
+
+    cout<<"Tempertura końcowa: "<<temperatura<<endl;
     cout<<"Droga: ";
     for (int elem : najlepsze_rozwionzanie){
         cout<<elem<<" ";

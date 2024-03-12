@@ -341,8 +341,8 @@ vector<int> tabu_time(vector<vector<int>> macierz){
 
     cout << "TABU czasowe ";
     while (chrono::high_resolution_clock::now() < stop) {
-        int losowe_miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
-        int losowe_miasto2 = rand() % (global_liczba_miast - 1) + 1;
+        //int losowe_miasto1 = rand() % (global_liczba_miast - 1) + 1; // Losowe miasto (pomijam startowe)
+        //int losowe_miasto2 = rand() % (global_liczba_miast - 1) + 1;
 
         // dywersyfikacja
         switch(typ_dywersyfikacji){
@@ -363,7 +363,7 @@ vector<int> tabu_time(vector<vector<int>> macierz){
         int nowy_koszt = oblicz_koszt_drogi(obecnie_najlepsze_rozwionzanie, macierz);
 
         // Sprawdzam czy ruch jest wykonalny wobec listy tabu
-        if ((nowy_koszt < obecny_koszt ) && find(lista_tabu.begin(), lista_tabu.end(), obecnie_najlepsze_rozwionzanie) == lista_tabu.end()) {
+        if ((nowy_koszt < obecny_koszt ) and find(lista_tabu.begin(), lista_tabu.end(), obecnie_najlepsze_rozwionzanie) == lista_tabu.end()) {
             obecny_koszt = nowy_koszt;
 
             // Aktualizuje najlepsze rozwiązanie jeśli je znajdę
@@ -372,7 +372,9 @@ vector<int> tabu_time(vector<vector<int>> macierz){
                 najlepszy_koszt = obecny_koszt;
                 auto t = chrono::high_resolution_clock::now();
                 auto minelo_czasu = chrono::duration_cast<chrono::seconds>(t - start).count();
+                auto minelo_czasu_mili = chrono::duration_cast<chrono::milliseconds>(t - start).count();
                 cout << "Nowe najlepsze rozwiazanie znalezione po " << minelo_czasu << " sekundach." << endl;
+                cout << "Nowe najlepsze rozwiazanie znalezione po " << minelo_czasu_mili << " milisekundach." << endl;
             }
 
             // Dodaje obecne rozwiązanie do listy tabu
@@ -481,7 +483,7 @@ void SW2_start(){
 
     SW2(macierz);
 
-    cout<<"koniec SW 2.0"<<endl;
+    cout<<"koniec SW"<<endl;
 }
 
 
@@ -497,11 +499,8 @@ int main() {
 
         cout << "Opcje:" << endl;
         cout << "0 - wczytaj macierz" << endl;
-        //cout << "1 - [stare] TABU1 " << endl;
-        //cout << "2 - [stare] TABU_test " << endl;
-        //cout << "3 - [stare] SW " << endl;
         cout << "1 - TABU z czasomierzem" << endl;
-        cout << "2 - SW 2.0" << endl;
+        cout << "2 - SW" << endl;
         cin>>opcja;
 
         switch (opcja) {
@@ -509,15 +508,6 @@ int main() {
                 system("CLS");
                 cout << "Błędna opcja" << endl << endl;
                 cin >> opcja;
-                break;
-            case 5:
-                //TABU1();
-                break;
-            case 4:
-                //TABU_test();
-                break;
-            case 3:
-                //SW_start();
                 break;
             case 1:
                 tabu_time_start();

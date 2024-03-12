@@ -9,7 +9,7 @@
 random_device rd;
 mt19937 gen(rd());
 
-double minimalna_temperatura = 0.000000001;
+double minimalna_temperatura = 0.000001;
 
 
 int oblicz_koszt_drogi_SW2(const vector<int>& rozwionzanie, vector<vector<int>> macierz) {
@@ -83,7 +83,7 @@ void SW2(vector<vector<int>> macierz){
     cout<<"Temperatura początkowa: "<<temperatura<<endl;
     cout<<endl;
 
-    int najlepsza_droga = oblicz_koszt_drogi_SW2(rozwionzanie, macierz);
+    int najlepszy_koszt = oblicz_koszt_drogi_SW2(rozwionzanie, macierz);
 
     auto start = chrono::high_resolution_clock::now();
 
@@ -111,14 +111,17 @@ void SW2(vector<vector<int>> macierz){
                 rozwionzanie = nowe_rozwionzanie;
 
                 //  aktualizacja najkrótszej trasy
-                if(obecny_koszt < najlepsza_droga){
-                    najlepsza_droga = obecny_koszt;
+                if(obecny_koszt < najlepszy_koszt){
+                    najlepszy_koszt = obecny_koszt;
                     najlepsze_rozwionzanie = rozwionzanie;
 
                     auto t = chrono::high_resolution_clock::now();
                     auto minelo_czasu = chrono::duration_cast<chrono::seconds>(t - start).count();
+                    auto minelo_czasu_mili = chrono::duration_cast<chrono::milliseconds>(t - start).count();
                     cout << "Nowe najlepsze rozwiazanie znalezione po " << minelo_czasu << " sekundach." << endl;
+                    cout << "Nowe najlepsze rozwiazanie znalezione po " << minelo_czasu_mili << " milisekundach." << endl;
                     cout << "Tempertura: " << temperatura << endl;
+                    cout <<"najlepszy_koszt: " <<najlepszy_koszt << endl;
                 }
             }
         }
@@ -131,5 +134,5 @@ void SW2(vector<vector<int>> macierz){
         cout<<elem<<" ";
     }
     cout<<endl;
-    cout << najlepsza_droga << endl;
+    cout << najlepszy_koszt << endl;
 }
